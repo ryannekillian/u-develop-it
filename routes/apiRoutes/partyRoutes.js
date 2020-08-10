@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../db/database');
-const { route } = require('./candidateRoutes');
+// const { route } = require('./candidateRoutes');
 
 // Get all parties
 router.get('/parties', (req, res) => {
@@ -24,7 +24,7 @@ router.get('/parties', (req, res) => {
   router.get('/party/:id', (req, res) => {
     const sql = `SELECT * FROM parties WHERE id = ?`;
     const params = [req.params.id];
-    db.get(sql, params, (err, row) => {
+    db.get(sql, params, (err, rows) => {
       if (err) {
         res.status(400).json({ error: err.message });
         return;
@@ -32,7 +32,7 @@ router.get('/parties', (req, res) => {
   
       res.json({
         message: 'success',
-        data: row
+        data: rows
       });
     });
   });

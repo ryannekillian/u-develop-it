@@ -7,10 +7,10 @@ const inputCheck = require('../../utils/inputCheck');
 // originally app.get('/api/candidates')
 router.get('/candidates', (req, res) => {
     const sql = `SELECT candidates.*, parties.name 
-    AS party_name 
-    FROM candidates 
-    LEFT JOIN parties 
-    ON candidates.party_id = parties.id`;
+                AS party_name 
+                FROM candidates 
+                LEFT JOIN parties 
+                ON candidates.party_id = parties.id`;
       const params = [];
       db.all(sql, params, (err, rows) => {
         if (err) {
@@ -29,11 +29,11 @@ router.get('/candidates', (req, res) => {
   // app.get('/api/candidate/:id')
   router.get('/candidate/:id', (req, res) => {
     const sql = `SELECT candidates.*, parties.name 
-    AS party_name 
-    FROM candidates 
-    LEFT JOIN parties 
-    ON candidates.party_id = parties.id 
-    WHERE candidates.id = ?`;
+                AS party_name 
+                FROM candidates 
+                LEFT JOIN parties 
+                ON candidates.party_id = parties.id 
+                WHERE candidates.id = ?`;
       const params = [req.params.id];
       db.get(sql, params, (err, row) => {
         if (err) {
@@ -50,6 +50,7 @@ router.get('/candidates', (req, res) => {
   
   // Create a candidate
   router.post('/candidate', ({ body }, res) => {
+    //candidate is allowed to have no party affiliation
       const errors = inputCheck(body, 'first_name', 'last_name', 'industry_connected');
           if (errors) {
           res.status(400).json({ error: errors });
@@ -57,7 +58,7 @@ router.get('/candidates', (req, res) => {
           }
       const sql = `INSERT INTO candidates (first_name, last_name, industry_connected) 
                 VALUES (?,?,?)`;
-      const params = [body.first_name, body.last_name, body.industry_connected];
+      const params = [body.first_name, body.last_name, body.industry_connected, body.party_id];
       // ES5 function, not arrow function, to use `this`
       db.run(sql, params, function(err, result) {
       if (err) {
@@ -70,10 +71,12 @@ router.get('/candidates', (req, res) => {
           data: body,
           id: this.lastID
       });
+    });
   });
-  });
+  //update a candidates party
   // app.put('/api/candidate/:id')
   router.put('/candidate/:id', (req, res) => {
+    //data validation
     const errors = inputCheck(req.body, 'party_id');
   
       if (errors) {
@@ -93,7 +96,8 @@ router.get('/candidates', (req, res) => {
       res.json({
         message: 'success',
         data: req.body,
-        changes: this.changes
+        changes: this.lastID
+        //was this.changes
       });
     });
   });

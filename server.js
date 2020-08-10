@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 const apiRoutes = require('./routes/apiRoutes');
-const inputCheck = require('./utils/inputCheck');
+// const inputCheck = require('./utils/inputCheck');
 
 //express middleware
 app.use('/api', apiRoutes);

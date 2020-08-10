@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../../db/database');
 const inputCheck = require('../../utils/inputCheck');
 
-//for all voters
+//get all voters alphabetized by last name
 router.get('/voters', (req, res) => {
     const sql = `SELECT * FROM voters ORDER BY last_name`;
     const params = [];
@@ -34,20 +34,19 @@ router.get('/voters', (req, res) => {
             
             res.json({
                 message: 'success',
-                data: row
+                data: rows
             });
         });
     });
 
-//post route for email addresses
+//create a voter
 router.post('/voter', ({ body }, res) => {
-
+  //data validation
   const errors = inputCheck(body, 'first_name', 'last_name', 'email');
-
-if (errors) {
-  res.status(400).json({ error: errors });
-  return;
-}
+    if (errors) {
+    res.status(400).json({ error: errors });
+    return;
+    }
   const sql = `INSERT INTO voters (first_name, last_name, email) VALUES (?,?,?)`;
   const params = [body.first_name, body.last_name, body.email];
 
@@ -65,6 +64,7 @@ if (errors) {
   });
 });
 
+//update email
 router.put('/voter/:id', (req, res) => {
   // Data validation
   const errors = inputCheck(req.body, 'email');
@@ -87,15 +87,17 @@ router.put('/voter/:id', (req, res) => {
     res.json({
       message: 'success',
       data: req.body,
-      changes: this.changes
+      id: this.lastID
+      // changes: this.changes
     });
   });
 });
 
+//delete a voter
 router.delete('/voter/:id', (req, res) => {
   const sql = `DELETE FROM voters WHERE id = ?`;
-
-  db.run(sql, req.params.id, function(err, result) {
+  const params = [req.params.id];
+  db.run(sql, params.id, function(err, result) {
     if (err) {
       res.status(400).json({ error: res.message });
       return;
